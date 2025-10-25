@@ -1,73 +1,259 @@
-# Welcome to your Lovable project
+# QuantEdge: AI-Powered Trading Simulator
 
-## Project info
+A production-ready, full-stack AI-powered quantitative trading simulator that predicts stock price movements using machine learning and executes simulated trades in real-time.
 
-**URL**: https://lovable.dev/projects/1e579546-53a4-4fd6-86aa-cf0c4a74ba61
+## 🚀 Features
 
-## How can I edit this code?
+- **Machine Learning Predictions**: LSTM neural network for price forecasting
+- **Reinforcement Learning**: DQN/PPO agent for optimal trading decisions
+- **Real-time Dashboard**: Modern React interface with live charts and analytics
+- **Risk Management**: Position sizing, stop-loss, and portfolio optimization
+- **Local-First**: Runs entirely on your laptop with SQLite database
+- **Backtesting Engine**: Historical simulation with realistic costs
+- **Technical Analysis**: RSI, MACD, Bollinger Bands, and more
 
-There are several ways of editing your application.
+## 📋 Requirements
 
-**Use Lovable**
+- Docker & Docker Compose (recommended)
+- **OR** Manual setup:
+  - Python 3.9+
+  - Node.js 18+
+  - npm or yarn
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1e579546-53a4-4fd6-86aa-cf0c4a74ba61) and start prompting.
+## 🏃 Quick Start (Docker - Recommended)
 
-Changes made via Lovable will be committed automatically to this repo.
+### One-Command Setup
 
-**Use your preferred IDE**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+This will:
+1. Create necessary directories
+2. Set up environment configuration
+3. Build Docker containers
+4. Start all services
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Access the Application
 
-Follow these steps:
+- **Frontend Dashboard**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Managing Services
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+# View logs
+docker-compose logs -f
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Stop services
+docker-compose down
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Restart services
+docker-compose restart
+
+# Rebuild after code changes
+docker-compose up -d --build
+```
+
+## 💻 Manual Setup (Without Docker)
+
+### Backend Setup
+
+```bash
+cd backend
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create directories
+mkdir -p data/raw data/processed data/models logs
+
+# Run the server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Configuration
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Create a `.env` file in the root directory:
 
-**Use GitHub Codespaces**
+```env
+DATABASE_URL=sqlite+aiosqlite:///./data/quantedge.db
+VITE_API_URL=http://localhost:8000
+INITIAL_CAPITAL=100000
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📁 Project Structure
 
-## What technologies are used for this project?
+```
+quantedge/
+├── backend/
+│   ├── app/
+│   │   ├── main.py              # FastAPI entry point
+│   │   ├── api/                 # REST API endpoints
+│   │   │   ├── health.py
+│   │   │   ├── trading.py
+│   │   │   ├── portfolio.py
+│   │   │   ├── ml.py
+│   │   │   └── data.py
+│   │   ├── models/              # Database models
+│   │   │   ├── stock_data.py
+│   │   │   ├── trades.py
+│   │   │   └── portfolio.py
+│   │   ├── ml/                  # Machine learning
+│   │   │   ├── lstm_predictor.py
+│   │   │   └── rl_agent.py
+│   │   ├── trading/             # Trading engine
+│   │   │   └── engine.py
+│   │   ├── data/                # Data collection
+│   │   │   └── collector.py
+│   │   └── database/            # Database setup
+│   │       └── init_db.py
+│   ├── data/                    # Local data storage
+│   │   ├── raw/                 # Downloaded stock data
+│   │   ├── processed/           # Processed features
+│   │   └── models/              # Trained ML models
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/                    # React TypeScript SPA
+│   ├── src/
+│   │   ├── components/
+│   │   │   └── dashboard/       # Dashboard components
+│   │   ├── pages/
+│   │   ├── services/            # API integration
+│   │   └── types/               # TypeScript types
+│   ├── package.json
+│   └── Dockerfile
+├── docker-compose.yml
+├── setup.sh
+└── README.md
+```
 
-This project is built with:
+## 🔧 API Endpoints
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Health & Status
+- `GET /api/health` - Health check
+- `GET /api/status` - System status
 
-## How can I deploy this project?
+### Trading
+- `POST /api/trading/orders` - Create trading order
+- `GET /api/trading/trades` - Get trade history
+- `GET /api/trading/orders` - Get order history
 
-Simply open [Lovable](https://lovable.dev/projects/1e579546-53a4-4fd6-86aa-cf0c4a74ba61) and click on Share -> Publish.
+### Portfolio
+- `GET /api/portfolio/positions` - Current positions
+- `GET /api/portfolio/performance` - Performance history
+- `GET /api/portfolio/metrics` - Portfolio metrics
 
-## Can I connect a custom domain to my Lovable project?
+### Machine Learning
+- `GET /api/ml/predictions/{symbol}` - Get predictions
+- `GET /api/ml/signals` - Current trading signals
+- `POST /api/ml/train/{model_type}` - Train ML model
 
-Yes, you can!
+### Data
+- `GET /api/data/price/{symbol}` - Historical prices
+- `POST /api/data/sync/{symbol}` - Sync stock data
+- `GET /api/data/symbols` - Available symbols
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🧪 Testing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+```bash
+# Backend tests
+cd backend
+pytest
+
+# Frontend tests
+cd frontend
+npm test
+```
+
+## 📊 Machine Learning Models
+
+### LSTM Price Predictor
+- **Input**: 15-day window of OHLCV + technical indicators
+- **Output**: Next-day price prediction with confidence
+- **Architecture**: Stacked LSTM with dropout layers
+
+### RL Trading Agent
+- **Algorithm**: PPO (Proximal Policy Optimization)
+- **Actions**: BUY, SELL, HOLD
+- **Reward**: Risk-adjusted portfolio returns
+
+## 📈 Performance Metrics
+
+The dashboard displays:
+- Total P&L and percentage returns
+- Sharpe Ratio (risk-adjusted returns)
+- Sortino Ratio (downside risk)
+- Maximum Drawdown
+- Win Rate
+- Active positions count
+
+## 🔒 Risk Management
+
+- Position sizing based on portfolio value
+- Stop-loss and take-profit levels
+- Maximum drawdown limits
+- Commission and slippage simulation (0.1%)
+
+## 🛠️ Development
+
+### Adding New Symbols
+
+Edit `backend/app/data/collector.py`:
+
+```python
+self.symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "YOUR_SYMBOL"]
+```
+
+### Training ML Models
+
+```bash
+# Access backend container
+docker-compose exec backend python
+
+# Run training script
+from app.data.collector import DataCollector
+from app.ml.lstm_predictor import LSTMPredictor
+
+# Fetch data
+collector = DataCollector()
+data = collector.fetch_all_symbols()
+
+# Train LSTM
+predictor = LSTMPredictor()
+# ... training code
+```
+
+## 📝 License
+
+This project is for educational and portfolio purposes.
+
+## 🤝 Contributing
+
+This is a portfolio project, but suggestions are welcome!
+
+## 📧 Contact
+
+For questions or collaboration, please reach out via GitHub.
+
+---
+
+**Note**: This is a simulation tool for educational purposes. Do not use for actual trading without proper risk assessment and testing.
