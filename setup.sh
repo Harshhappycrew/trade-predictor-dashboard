@@ -28,14 +28,35 @@ echo "✓ Directories created"
 
 # Copy environment file if it doesn't exist
 if [ ! -f .env ]; then
-    echo "Creating .env file..."
+    echo "Creating .env file with Indian stock market configuration..."
     cat > .env << EOF
-# QuantEdge Configuration
+# QuantEdge Configuration - Indian Stock Market (NSE)
 DATABASE_URL=sqlite+aiosqlite:///./data/quantedge.db
 VITE_API_URL=http://localhost:8000
-INITIAL_CAPITAL=100000
+
+# Trading Configuration (Indian Market)
+INITIAL_CAPITAL=1000000
+CURRENCY=INR
+CURRENCY_SYMBOL=₹
+STOCK_EXCHANGE=NSE
+
+# Default NSE Stocks
+DEFAULT_STOCKS=RELIANCE.NS,TCS.NS,HDFCBANK.NS,INFY.NS,HINDUNILVR.NS,ICICIBANK.NS,BHARTIARTL.NS,ITC.NS,SBIN.NS,KOTAKBANK.NS
+
+# ML Model Configuration
+LSTM_SEQUENCE_LENGTH=15
+LSTM_EPOCHS=50
+RL_EPISODES=1000
+
+# Risk Management
+MAX_POSITION_SIZE=0.1
+STOP_LOSS_PERCENTAGE=0.05
+COMMISSION_RATE=0.001
 EOF
-    echo "✓ .env file created"
+    echo "✓ .env file created with NSE configuration"
+    echo "  Configured for Indian stocks with INR ₹1,000,000 capital"
+else
+    echo "✓ .env file already exists"
 fi
 
 # Build and start containers

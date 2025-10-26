@@ -10,15 +10,53 @@ import ta
 class DataCollector:
     """Collect and process stock market data"""
     
-    def __init__(self, symbols: list = None):
-        self.symbols = symbols or ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN"]
+    def __init__(self, symbols: list = None, exchange: str = "NSE"):
+        """
+        Initialize DataCollector with symbols and exchange
+        
+        Args:
+            symbols: List of stock symbols
+            exchange: Stock exchange (NSE for Indian stocks, US for American stocks)
+        """
+        self.exchange = exchange
+        
+        if symbols:
+            self.symbols = symbols
+        elif exchange == "NSE":
+            # Top Indian stocks from NSE
+            self.symbols = [
+                "RELIANCE.NS",  # Reliance Industries
+                "TCS.NS",       # Tata Consultancy Services
+                "HDFCBANK.NS",  # HDFC Bank
+                "INFY.NS",      # Infosys
+                "HINDUNILVR.NS",# Hindustan Unilever
+                "ICICIBANK.NS", # ICICI Bank
+                "BHARTIARTL.NS",# Bharti Airtel
+                "ITC.NS",       # ITC Limited
+                "SBIN.NS",      # State Bank of India
+                "KOTAKBANK.NS"  # Kotak Mahindra Bank
+            ]
+        else:
+            # Default US stocks
+            self.symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN"]
     
     def fetch_historical_data(self, symbol: str, period: str = "2y"):
-        """Fetch historical data from yfinance"""
+        """
+        Fetch historical data from yfinance
+        
+        Args:
+            symbol: Stock symbol (e.g., 'RELIANCE.NS' for NSE, 'AAPL' for US)
+            period: Time period for historical data
+        """
         try:
-            logger.info(f"Fetching data for {symbol}...")
+            logger.info(f"Fetching data for {symbol} from {self.exchange}...")
             ticker = yf.Ticker(symbol)
             df = ticker.history(period=period)
+            
+            # Get additional info for Indian stocks
+            if self.exchange == "NSE" and df is not None and not df.empty:
+                info = ticker.info
+                logger.info(f"Stock: {info.get('longName', symbol)}, Currency: {info.get('currency', 'INR')}")
             
             if df.empty:
                 logger.warning(f"No data retrieved for {symbol}")
@@ -55,8 +93,8 @@ class DataCollector:
             df['sma_20'] = ta.trend.SMAIndicator(df['Close'], window=20).sma_indicator()
             df['sma_50'] = ta.trend.SMAIndicator(df['Close'], window=50).sma_indicator()
             
-            # Fill NaN values
-            df = df.fillna(method='bfill').fillna(method='ffill')
+            # Fill NaN values using forward fill and backward fill
+            df = df.ffill().bfill()
             
             return df
         

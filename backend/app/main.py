@@ -6,10 +6,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
+from dotenv import load_dotenv
 import sys
+import os
 
 from app.api import health, trading, portfolio, ml, data
 from app.database.init_db import init_database
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logger.remove()
@@ -39,10 +44,24 @@ app.include_router(portfolio.router, prefix="/api/portfolio", tags=["portfolio"]
 app.include_router(ml.router, prefix="/api/ml", tags=["machine-learning"])
 app.include_router(data.router, prefix="/api/data", tags=["data"])
 
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "name": "QuantEdge Trading API",
+        "version": "1.0.0",
+        "status": "running",
+        "exchange": os.getenv("STOCK_EXCHANGE", "NSE"),
+        "currency": os.getenv("CURRENCY", "INR"),
+        "currency_symbol": os.getenv("CURRENCY_SYMBOL", "₹")
+    }
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize database and load ML models on startup"""
-    logger.info("Starting QuantEdge Trading Simulator...")
+    exchange = os.getenv("STOCK_EXCHANGE", "NSE")
+    currency = os.getenv("CURRENCY", "INR")
+    logger.info(f"Starting QuantEdge Trading Simulator for {exchange} ({currency})...")
     await init_database()
     logger.info("Database initialized successfully")
     # Load ML models here if needed

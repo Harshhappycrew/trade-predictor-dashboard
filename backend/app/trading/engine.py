@@ -8,13 +8,23 @@ from loguru import logger
 class TradingEngine:
     """Core trading simulation engine"""
     
-    def __init__(self, initial_capital: float = 100000):
+    def __init__(self, initial_capital: float = 1000000, currency: str = "INR"):
+        """
+        Initialize trading engine
+        
+        Args:
+            initial_capital: Starting capital
+            currency: Currency (INR for Indian market, USD for US market)
+        """
         self.initial_capital = initial_capital
         self.cash_balance = initial_capital
         self.positions: Dict[str, Dict] = {}
         self.orders: List[Dict] = []
         self.trades: List[Dict] = []
         self.commission_rate = 0.001  # 0.1% commission
+        self.currency = currency
+        
+        logger.info(f"Trading engine initialized with {currency} {initial_capital:,.2f}")
     
     def execute_order(self, symbol: str, action: str, quantity: int, price: float):
         """Execute a trading order"""

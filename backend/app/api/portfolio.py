@@ -73,6 +73,11 @@ async def get_performance(
 async def get_portfolio_metrics(db: AsyncSession = Depends(get_db)):
     """Get current portfolio metrics"""
     try:
+        import os
+        currency = os.getenv("CURRENCY", "INR")
+        currency_symbol = os.getenv("CURRENCY_SYMBOL", "₹")
+        initial_capital = float(os.getenv("INITIAL_CAPITAL", "1000000"))
+        
         # Get latest snapshot
         result = await db.execute(
             select(PortfolioSnapshot)
@@ -83,11 +88,13 @@ async def get_portfolio_metrics(db: AsyncSession = Depends(get_db)):
         
         if not latest:
             return {
-                "total_value": 100000.0,
-                "cash_balance": 100000.0,
+                "total_value": initial_capital,
+                "cash_balance": initial_capital,
                 "positions_value": 0.0,
                 "total_pnl": 0.0,
-                "total_pnl_percent": 0.0
+                "total_pnl_percent": 0.0,
+                "currency": currency,
+                "currency_symbol": currency_symbol
             }
         
         return {
@@ -96,7 +103,9 @@ async def get_portfolio_metrics(db: AsyncSession = Depends(get_db)):
             "positions_value": latest.positions_value,
             "total_pnl": latest.total_pnl,
             "total_pnl_percent": latest.total_pnl_percent,
-            "daily_return": latest.daily_return
+            "daily_return": latest.daily_return,
+            "currency": currency,
+            "currency_symbol": currency_symbol
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

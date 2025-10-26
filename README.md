@@ -18,6 +18,13 @@ A production-ready, full-stack AI-powered quantitative trading simulator that pr
 
 ## 🚀 Features
 
+### Indian Stock Market Support
+- **NSE (National Stock Exchange)**: Pre-configured for Indian stocks
+- **INR Currency**: Full support for Indian Rupee with ₹ symbol
+- **Top NSE Stocks**: RELIANCE, TCS, HDFC Bank, Infosys, ITC, and more
+- **Market Hours**: Respects NSE trading hours (9:15 AM - 3:30 PM IST)
+- **Multi-Market**: Easily switch between NSE (India) and US markets
+
 ### Machine Learning
 - **LSTM Neural Network**: Time-series price forecasting with 15-day windows
 - **Reinforcement Learning**: PPO agent for optimal buy/sell/hold decisions
@@ -122,12 +129,30 @@ npm run dev
 
 ### Environment Configuration
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory (see `.env.example`):
 
 ```env
+# Database
 DATABASE_URL=sqlite+aiosqlite:///./data/quantedge.db
 VITE_API_URL=http://localhost:8000
+
+# Trading Configuration (Indian Market)
+INITIAL_CAPITAL=1000000
+CURRENCY=INR
+CURRENCY_SYMBOL=₹
+STOCK_EXCHANGE=NSE
+
+# Default NSE Stocks
+DEFAULT_STOCKS=RELIANCE.NS,TCS.NS,HDFCBANK.NS,INFY.NS,HINDUNILVR.NS,ICICIBANK.NS,BHARTIARTL.NS,ITC.NS,SBIN.NS,KOTAKBANK.NS
+```
+
+**For US Market**, change to:
+```env
 INITIAL_CAPITAL=100000
+CURRENCY=USD
+CURRENCY_SYMBOL=$
+STOCK_EXCHANGE=US
+DEFAULT_STOCKS=AAPL,GOOGL,MSFT,TSLA,AMZN
 ```
 
 ## 📁 Project Structure
@@ -282,10 +307,16 @@ The dashboard displays:
 
 ### Adding New Symbols
 
-Edit `backend/app/data/collector.py`:
+For NSE stocks, add `.NS` suffix:
 
 ```python
-self.symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "YOUR_SYMBOL"]
+# backend/app/data/collector.py
+self.symbols = ["RELIANCE.NS", "TCS.NS", "YOUR_SYMBOL.NS"]
+```
+
+Or set in `.env`:
+```env
+DEFAULT_STOCKS=RELIANCE.NS,TCS.NS,YOUR_SYMBOL.NS
 ```
 
 ### Training ML Models

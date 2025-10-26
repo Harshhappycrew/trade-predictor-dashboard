@@ -66,12 +66,23 @@ async def sync_stock_data(symbol: str):
 async def get_available_symbols(db: AsyncSession = Depends(get_db)):
     """Get list of available symbols"""
     try:
+        import os
+        
         result = await db.execute(
             select(StockPrice.symbol)
             .distinct()
         )
         symbols = result.scalars().all()
         
-        return {"symbols": list(symbols) if symbols else ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN"]}
+        # Default to Indian NSE stocks if none in database
+        default_symbols = os.getenv("DEFAULT_STOCKS", 
+            "RELIANCE.NS,TCS.NS,HDFCBANK.NS,INFY.NS,HINDUNILVR.NS,ICICIBANK.NS,BHARTIARTL.NS,ITC.NS,SBIN.NS,KOTAKBANK.NS"
+        ).split(",")
+        
+        return {
+            "symbols": list(symbols) if symbols else default_symbols,
+            "exchange": os.getenv("STOCK_EXCHANGE", "NSE"),
+            "currency": os.getenv("CURRENCY", "INR")
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
