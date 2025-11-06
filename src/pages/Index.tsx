@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { TrendingUp, TrendingDown, Activity, DollarSign, Target, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Activity } from "lucide-react";
+import { api } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PortfolioChart } from "@/components/dashboard/PortfolioChart";
 import { PositionsTable } from "@/components/dashboard/PositionsTable";
@@ -9,6 +10,31 @@ import { PriceChart } from "@/components/dashboard/PriceChart";
 import { SignalIndicator } from "@/components/dashboard/SignalIndicator";
 
 const Index = () => {
+  const [portfolioValue, setPortfolioValue] = useState<number>(0);
+  const [currencySymbol, setCurrencySymbol] = useState<string>("₹");
+  const [exchange, setExchange] = useState<string>("NSE");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const metrics = await api.getMetrics();
+        setPortfolioValue(metrics.total_value || 0);
+        setCurrencySymbol(metrics.currency_symbol || "₹");
+        setExchange(metrics.exchange || "NSE");
+      } catch (error) {
+        console.error("Error fetching portfolio data:", error);
+      }
+    };
+    
+    fetchData();
+    const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatCurrency = (value: number) => {
+    return `${currencySymbol}${value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -16,12 +42,12 @@ const Index = () => {
           <div className="flex items-center gap-3">
             <Activity className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold tracking-tight">QuantEdge</h1>
-            <span className="text-xs text-muted-foreground">AI Trading Simulator</span>
+            <span className="text-xs text-muted-foreground">AI Trading Simulator - {exchange}</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm text-muted-foreground">Portfolio Value</div>
-              <div className="text-xl font-bold text-success">$125,847.92</div>
+              <div className="text-xl font-bold text-success">{formatCurrency(portfolioValue)}</div>
             </div>
           </div>
         </div>
